@@ -1,5 +1,5 @@
 # EXACT
-PyTorch implementation of the EXACT loss function for accuracy optimization via gradient descent.
+The original PyTorch implementation of the EXACT loss function for accuracy optimization via gradient descent.
 
 See [EXACT: How to Train Your Accuracy (2022)](https://arxiv.org/pdf/2205.09615.pdf) for more details.
 
