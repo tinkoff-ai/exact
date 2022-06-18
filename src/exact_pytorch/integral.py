@@ -144,8 +144,7 @@ class PositiveNormalProb(torch.autograd.Function):
     """
     @staticmethod
     def forward(self, mean, n=16):
-        with torch.no_grad():
-            integrals, gradients = integral(mean, n=n)
+        integrals, gradients = integral(mean, n=n)
         self.save_for_backward(integrals, gradients)
         return integrals
 
