@@ -59,7 +59,6 @@ def genz_integral_impl(mean, cov_diag : int = 2, cov_alt : int = 1, n : int = 10
 
     Returns:
         Tuple of integral values with shape (B) and gradients with shape (B, D).
-        If get_point is True, points with shape (B, N, D) are attached to the tuple.
     """
     SQ2 = math.sqrt(2)
     NORMAL_NORM = math.sqrt(2 / math.pi)
