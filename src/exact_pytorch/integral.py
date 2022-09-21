@@ -128,6 +128,11 @@ class PositiveNormalProb(torch.autograd.Function):
     """Compute probability of all elements beign more than zero.
 
     Probability is differentiable w.r.t. the distribution mean.
+
+    Orthant integration is preformed for the normal distribution with
+    covariance matrix of the special form. All diagonal elements of
+    the covariance matrix are equal to 2. Non-diagonal elements are
+    equal to 1.
     """
     @staticmethod
     def forward(self, mean, n=16):
