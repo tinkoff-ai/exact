@@ -42,7 +42,7 @@ class TestCriterion(TestCase):
         bias = torch.tensor([0., 1.]).double()
         logits = torch.nn.functional.linear(mean, targets, bias)
         loss = criterion(logits * concentrations, labels)
-        accuracy = 1 - loss.item()
+        accuracy = (-loss).exp().item()
         accuracy_gt = stats.norm.cdf(4 / np.sqrt(2))
         self.assertAlmostEqual(accuracy, accuracy_gt, 5)
 
