@@ -59,6 +59,7 @@ def genz_integral_impl(mean, cov_diag : int = 2, cov_alt : int = 1, n : int = 10
 
     Returns:
         Tuple of integral values with shape (B) and gradients with shape (B, D).
+        If get_point is True, points with shape (B, N, D) are attached to the tuple.
     """
     SQ2 = math.sqrt(2)
     NORMAL_NORM = math.sqrt(2 / math.pi)
@@ -96,13 +97,12 @@ def genz_integral_impl(mean, cov_diag : int = 2, cov_alt : int = 1, n : int = 10
     return integrals, gradients
 
 
-def integral(mean, n=16, reorder=True):
+def integral(mean, n=16):
     """Compute multivariate density in the orthant > 0 with covariance matrix equal to I + 1.
 
     Args:
         mean: Mean tensors with shape (..., D).
         n: Sample size.
-        reorder: Whether to use reordered integration or not.
 
     Returns:
         Integral values with shape (...) if mean_grad is False and gradient values with shape (..., D) otherwise.
@@ -113,18 +113,11 @@ def integral(mean, n=16, reorder=True):
     dim = mean.shape[-1]
 
     mean = mean.reshape(b, dim)  # (B, D).
-
-    if reorder:
-        mean, order = mean.sort(dim=-1)  # (B, D), (B, D).
-    else:
-        order = torch.arange(dim, dtype=mean.dtype, device=mean.device).reshape([1, dim])  # (B, D).
-
+    mean, order = mean.sort(dim=-1)  # (B, D), (B, D).
     integrals, gradients = genz_integral_impl(mean, n=n)
 
-    if reorder:
-        # Sums: (B, D).
-        iorder = order.argsort(dim=-1)  # (B, D).
-        gradients = gradients.take_along_dim(iorder, -1)
+    iorder = order.argsort(dim=-1)  # (B, D).
+    gradients = gradients.take_along_dim(iorder, -1)
 
     integrals = integrals.reshape(*(prefix or [[]]))
     gradients = gradients.reshape(*(prefix + [dim]))
@@ -132,15 +125,14 @@ def integral(mean, n=16, reorder=True):
 
 
 class PositiveNormalProb(torch.autograd.Function):
-    """Compute probability of all elements being more than zero.
+    """Compute probability of all elements beign more than zero.
+
+    Probability is differentiable w.r.t. the distribution mean.
 
     Orthant integration is preformed for the normal distribution with
     covariance matrix of the special form. All diagonal elements of
     the covariance matrix are equal to 2. Non-diagonal elements are
     equal to 1.
-
-    Probability is differentiable w.r.t. the distribution mean.
-
     """
     @staticmethod
     def forward(self, mean, n=16):
